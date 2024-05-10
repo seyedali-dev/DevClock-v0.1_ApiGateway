@@ -1,0 +1,47 @@
+#file: noinspection HttpUrlsUsage
+
+logging:
+  level:
+    com.seyed.ali.ApiGateway.service.UserProxyService: TRACE
+
+--- # keycloak
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${KEYCLOAK_SERVER_HOST:localhost}:8080/realms/DevVault-v2.0
+
+--- # Eureka client
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://${EUREKA_SERVER_HOST:localhost}:8761/eureka
+
+--- # API Gateway
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: Time-Entry-Service
+          uri: lb://Time-Entry-Service
+          predicates:
+            - Path=/time-entry/**
+        - id: Authentication-Service
+          uri: lb://Authentication-Service
+          predicates:
+            - Path=/keycloak-user/**
+        - id: Authentication-Service
+          uri: lb://Authentication-Service
+          predicates:
+            - Path=/hello
+
+--- # Custom Variables
+microservice:
+  authentication-service:
+    url: ${MICROSERVICE_AUTHENTICATION_SERVICE_URL:http://Authentication-Service/keycloak-user}
+    endpoint-url: ${MICROSERVICE_AUTHENTICATION_SERVICE_ENDPOINT_URL:/handle-user}
