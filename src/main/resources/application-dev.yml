@@ -31,6 +31,7 @@ spring:
           uri: lb://Time-Entry-Service
           predicates:
             - Path=/api/v1/time/**
+
         - id: Authentication-Service
           uri: lb://Authentication-Service
           predicates:
@@ -39,6 +40,10 @@ spring:
           uri: lb://Authentication-Service
           predicates:
             - Path=/hello
+        - id: Authentication-Service
+          uri: lb://Authentication-Service
+          predicates:
+            - Path=/keycloak/**
 
 --- # Custom Variables
 microservice:
