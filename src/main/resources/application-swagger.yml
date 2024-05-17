@@ -1,0 +1,106 @@
+#file: noinspection HttpUrlsUsage
+
+logging:
+  level:
+    com.seyed.ali.ApiGateway.service.UserProxyService: TRACE
+
+--- # keycloak
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${KEYCLOAK_SERVER_HOST:localhost}:8080/realms/DevVault-v2.0
+
+--- # Eureka client
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://${EUREKA_SERVER_HOST:localhost}:8761/eureka
+
+--- # API Gateway
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: Time-Entry-Service
+          uri: lb://Time-Entry-Service
+          predicates:
+            - Path=/api/v1/time/**
+
+        - id: Authentication-Service
+          uri: lb://Authentication-Service
+          predicates:
+            - Path=/keycloak-user/**
+        - id: Authentication-Service
+          uri: lb://Authentication-Service
+          predicates:
+            - Path=/hello
+        - id: Authentication-Service
+          uri: lb://Authentication-Service
+          predicates:
+            - Path=/keycloak/**
+#        - id: Authentication-Service
+#          uri: http://localhost:8082
+#          predicates:
+#            - Path=/auth-service/v3/api-docs
+#            - Method=GET
+#          filters:
+#            - RewritePath=/
+
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+        - id: Authentication-Service
+          uri: lb://Authentication-Service
+          predicates:
+            - Path=/authentication-service/**
+          filters:
+            - RewritePath=/authentication-service/(?<path>.*), /$\{path}
+
+springdoc:
+  api-docs:
+    groups:
+      enabled: true
+    enabled: true
+  group-configs:
+    - group: Authentication-Service
+      paths-to-match:
+        - /authentication-service/**
+      display-name: Authentication-Service
+
+  swagger-ui:
+    config-url: /v3/api-docs/swagger-config
+    url: /v3/api-docs
+    urls:
+      - url: /authentication-service/v3/api-docs
+        name: Authentication-Service
+
+
+#--- # Swagger
+#springdoc:
+#  api-docs:
+#    enabled: true
+#
+#  swagger-ui:
+#    enabled: true
+#    path: /swagger-ui.html
+#    config-url: /v3/api-docs/swagger-config
+#    urls:
+#      - url: /v3/api-docs
+#        name: API Gateway Service
+#      - url: /auth-service/v3/api-docs
+#        name: Authentication Service
+
+--- # Custom Variables
+microservice:
+  authentication-service:
+    url: ${MICROSERVICE_AUTHENTICATION_SERVICE_URL:http://Authentication-Service/keycloak-user}
+    endpoint-url: ${MICROSERVICE_AUTHENTICATION_SERVICE_ENDPOINT_URL:/handle-user}

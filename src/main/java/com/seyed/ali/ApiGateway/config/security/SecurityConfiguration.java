@@ -14,16 +14,18 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfiguration {
 
     private final KeycloakJwtAuthorityConverter keycloakJwtAuthorityConverter;
+    private final String[] authenticatedResources = {
+            "/eureka/**",
+            "/actuator/**",
+            "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/aggregate/**", "/favicon.ico", "/authentication-service/v3/api-docs",
+            "/h2-console/**"
+    };
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity httpSecurity) {
         httpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(customizer -> customizer
-                        .pathMatchers("/eureka/**").permitAll()
-                        .pathMatchers("/actuator/**").permitAll()
-                        .pathMatchers("/swagger-ui/**", "/v3/api-docs/**", "/favicon.ico").permitAll()
-                        .pathMatchers("/keycloak-user/verify-email/**").permitAll()
-                        .pathMatchers("/h2-console/**").permitAll()
+                        .pathMatchers(this.authenticatedResources).permitAll()
                         .anyExchange().authenticated()
                 )
                 .headers(headers -> headers.
