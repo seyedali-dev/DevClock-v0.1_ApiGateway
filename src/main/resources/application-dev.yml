@@ -10,7 +10,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://${KEYCLOAK_SERVER_HOST:localhost}:8080/realms/DevVault-v2.0
+          issuer-uri: http://${DC_KEYCLOAK_SERVER_HOST:localhost}:8080/realms/DevVault-v2.0
 
 --- # Eureka client
 eureka:
@@ -20,7 +20,8 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://${EUREKA_SERVER_HOST:localhost}:8761/eureka
+      defaultZone: http://${DC_EUREKA_SERVER_HOST:localhost}:8761/eureka
+#      defaultZone: http://discovery-server:8761/eureka
 
 --- # API Gateway
 spring:
