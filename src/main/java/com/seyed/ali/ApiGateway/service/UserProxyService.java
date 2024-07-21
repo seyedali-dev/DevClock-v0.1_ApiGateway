@@ -43,7 +43,9 @@ public class UserProxyService {
     public Mono<Void> performHandleUser(Jwt jwt) {
         String user = this.keycloakSecurityUtil.extractEmail(jwt);
         log.trace("-----------------------------------------------");
-        log.trace("Handling user with JWT: {{}}", user);
+        log.trace("Attempting to handle user: {{}}", user);
+        log.debug("Making request to Authentication-Service. URL: {{}}", this.baseUrl + this.endpointUrl);
+        log.debug("Request headers: {}", jwt.getHeaders());
 
         // TODO: Implement caching of requests to improve performance
         // Currently, each request is made to the `Authentication-Service` without caching, which can lead to performance issues.
@@ -56,7 +58,7 @@ public class UserProxyService {
                 .retrieve()
                 .bodyToMono(Void.class)
                 .onErrorResume(WebClientResponseException.ServiceUnavailable.class, e -> {
-                    log.error("Service Unavailable error when calling user-service - {}", e.getMessage());
+                    log.error("Service Unavailable error when calling user-service - {{}}", e.getMessage());
                     return Mono.error(e);
                 })
                 .doOnSuccess(unused -> log.trace("Successfully handled user: {{}}", user));
