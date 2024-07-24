@@ -28,11 +28,6 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: Time-Entry-Service
-          uri: lb://Time-Entry-Service
-          predicates:
-            - Path=/api/v1/time/**
-
         - id: Authentication-Service
           uri: lb://Authentication-Service
           predicates:
@@ -45,6 +40,16 @@ spring:
           uri: lb://Authentication-Service
           predicates:
             - Path=/keycloak/**
+
+        - id: Time-Entry-Service
+          uri: lb://Time-Entry-Service
+          predicates:
+            - Path=/api/v1/time/**
+
+        - id: Project-Service
+          uri: lb://Project-Service
+          predicates:
+            - Path=/api/v1/project/**
 
 --- # Custom Variables
 microservice:
