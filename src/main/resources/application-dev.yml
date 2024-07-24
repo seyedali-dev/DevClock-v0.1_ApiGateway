@@ -51,6 +51,11 @@ spring:
           predicates:
             - Path=/api/v1/project/**
 
+        - id: Task-Service
+          uri: lb://Task-Service
+          predicates:
+            - Path=/api/v1/task/**
+
 --- # Custom Variables
 microservice:
   authentication-service:
